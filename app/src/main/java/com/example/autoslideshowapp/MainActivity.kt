@@ -40,49 +40,63 @@ class MainActivity : AppCompatActivity() {
                     arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
                     PERMISSIONS_REQUEST_CODE
                 )
+
             }
             // Android 5系以下の場合
         } else {
             getContentsInfo()
         }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        when (requestCode) {
+            PERMISSIONS_REQUEST_CODE ->
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    getContentsInfo()
+                } else {
+                    back_button.isEnabled = false
+                    forward_button.isEnabled = false
+                    play_button.isEnabled = false
+                }
+        }
 
 
 
-
-
-        back_button.setOnClickListener{
-            if(cursor!!.isFirst()) {
+        back_button.setOnClickListener {
+            if (cursor!!.isFirst()) {
                 cursor!!.moveToLast()
-            }else {
+            } else {
                 cursor!!.moveToPrevious()
 
                 val fieldIndex = cursor!!.getColumnIndex(MediaStore.Images.Media._ID)
                 val id = cursor!!.getLong(fieldIndex)
                 val imageUri =
                     ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
+                ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
                 imageView.setImageURI(imageUri)
 
-                
-        }
+
+            }
         }
 
-        forward_button.setOnClickListener{
+        forward_button.setOnClickListener {
 
-            if(cursor!!.isLast()){
+            if (cursor!!.isLast()) {
                 cursor!!.moveToFirst()
 
-            }else{
-               cursor!!.moveToNext()
+            } else {
+                cursor!!.moveToNext()
 
             }
             val fieldIndex = cursor!!.getColumnIndex(MediaStore.Images.Media._ID)
             val id = cursor!!.getLong(fieldIndex)
-            val imageUri = ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
+            val imageUri =
+                ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
             imageView.setImageURI(imageUri)
         }
 
-        play_button.setOnClickListener{
-            if (mTimer == null){
+        play_button.setOnClickListener {
+            if (mTimer == null) {
                 if (mTimer == null) {
                     mTimer = Timer()
                     play_button.setText("停止")
@@ -109,7 +123,7 @@ class MainActivity : AppCompatActivity() {
                     }, 0, 2000) // 最初に始動させるまで 100ミリ秒、ループの間隔を 100ミリ秒 に設定
                 }
 
-            }else if (mTimer != null){
+            } else if (mTimer != null) {
                 mTimer!!.cancel()
                 mTimer = null
                 play_button.setText("再生")
@@ -119,20 +133,8 @@ class MainActivity : AppCompatActivity() {
         }
 
 
-
-        }
-
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-        when (requestCode) {
-            PERMISSIONS_REQUEST_CODE ->
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    getContentsInfo()
-                }
-        }
-
-
     }
+
 
     private fun getContentsInfo() {
         val resolver = contentResolver
@@ -152,8 +154,9 @@ class MainActivity : AppCompatActivity() {
         imageView.setImageURI(imageUri)
 
     }
-
 }
+
+
 
 
 
