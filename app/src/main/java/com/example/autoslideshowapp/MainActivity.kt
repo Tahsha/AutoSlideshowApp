@@ -28,40 +28,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Android 6.0以降の場合
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            // パーミッションの許可状態を確認する
-            if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
-                // 許可されている
-                getContentsInfo()
-            } else {
-                // 許可されていないので許可ダイアログを表示する
-                requestPermissions(
-                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
-                    PERMISSIONS_REQUEST_CODE
-                )
-
-            }
-            // Android 5系以下の場合
-        } else {
-            getContentsInfo()
-        }
-    }
-
-    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
-        when (requestCode) {
-            PERMISSIONS_REQUEST_CODE ->
-                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    getContentsInfo()
-                } else {
-                    back_button.isEnabled = false
-                    forward_button.isEnabled = false
-                    play_button.isEnabled = false
-                }
-        }
-
-
-
         back_button.setOnClickListener {
             if (cursor!!.isFirst()) {
                 cursor!!.moveToLast()
@@ -105,16 +71,15 @@ class MainActivity : AppCompatActivity() {
                     // タイマーの始動
                     mTimer!!.schedule(object : TimerTask() {
                         override fun run() {
-                            val fieldIndex = cursor!!.getColumnIndex(MediaStore.Images.Media._ID)
-                            val id = cursor!!.getLong(fieldIndex)
-                            val imageUri = ContentUris.withAppendedId(
-                                MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                                id
-                            )
+
                             cursor!!.moveToNext()
                             if (cursor!!.isLast()) {
                                 cursor!!.moveToFirst()
                             }
+                            val fieldIndex = cursor!!.getColumnIndex(MediaStore.Images.Media._ID)
+                            val id = cursor!!.getLong(fieldIndex)
+                            val imageUri =
+                                ContentUris.withAppendedId(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, id)
 
                             mHandler.post {
                                 imageView.setImageURI(imageUri)
@@ -131,6 +96,43 @@ class MainActivity : AppCompatActivity() {
                 forward_button.isEnabled = true
             }
         }
+
+
+
+        // Android 6.0以降の場合
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            // パーミッションの許可状態を確認する
+            if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED) {
+                // 許可されている
+                getContentsInfo()
+            } else {
+                // 許可されていないので許可ダイアログを表示する
+                requestPermissions(
+                    arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE),
+                    PERMISSIONS_REQUEST_CODE
+                )
+
+            }
+            // Android 5系以下の場合
+        } else {
+            getContentsInfo()
+        }
+    }
+
+
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<String>, grantResults: IntArray) {
+        when (requestCode) {
+            PERMISSIONS_REQUEST_CODE ->
+                if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    getContentsInfo()
+                } else {
+                    back_button.isEnabled = false
+                    forward_button.isEnabled = false
+                    play_button.isEnabled = false
+                }
+        }
+
 
 
     }
